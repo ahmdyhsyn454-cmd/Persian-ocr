@@ -1,0 +1,2 @@
+pyTelegramBotAPI
+google-cloud-vision
