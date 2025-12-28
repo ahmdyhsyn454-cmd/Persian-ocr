@@ -2,9 +2,28 @@ import os
 import telebot
 from google.cloud import vision
 
+
 BOT_TOKEN = os.environ['BOT_TOKEN']  # توکن از Environment Variables
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/app/google_credentials.json'
+import json
+import os
+
+# گرفتن محتوای JSON از متغیر محیطی
+google_credentials_content = os.environ.get('GOOGLE_CREDENTIALS')
+
+if not google_credentials_content:
+    raise ValueError("متغیر GOOGLE_CREDENTIALS تنظیم نشده است!")
+
+# تبدیل رشته JSON به دیکشنری
+credentials_dict = json.loads(google_credentials_content)
+
+# ساخت فایل موقت در /tmp (که Railway اجازه نوشتن داره)
+temp_credentials_path = '/tmp/google_credentials.json'
+with open(temp_credentials_path, 'w') as f:
+    json.dump(credentials_dict, f)
+
+# تنظیم مسیر برای گوگل
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = temp_credentials_path
 
 bot = telebot.TeleBot(BOT_TOKEN)
 client = vision.ImageAnnotatorClient()
@@ -43,3 +62,4 @@ def handle_photo(message):
 
 print("بات شروع شد!")
 bot.infinity_polling()
+
